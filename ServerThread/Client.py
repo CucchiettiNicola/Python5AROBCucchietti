@@ -1,15 +1,15 @@
 import socket as sck
 
 s = sck.socket(sck.AF_INET, sck.SOCK_STREAM)
-s.connect(('192.168.10.61', 65432))
+s.connect(('127.0.0.1', 1234))
 print("connesso")
 while True:
     stringaDaInviare = input()
     s.sendall(stringaDaInviare.encode())
-    if stringaDaInviare == "0":
+    if stringaDaInviare == "exit":
         break
     dataByte = s.recv(4096)
-    if dataByte.decode() == "0":
+    if dataByte.decode() == "exit":
         break
     print(dataByte.decode())
 s.close()
