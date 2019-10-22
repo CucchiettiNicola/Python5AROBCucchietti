@@ -1,7 +1,7 @@
 import socket as sck
 
 s = sck.socket(sck.AF_INET, sck.SOCK_STREAM)
-s.connect(('192.168.10.58', 1234))
+s.connect(('192.168.0.96', 1234))
 print("connesso")
 while True:
     stringaDaInviare = input()

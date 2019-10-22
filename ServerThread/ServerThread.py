@@ -5,8 +5,9 @@ BUFFSIZE = 4096
 SERVER_IP = "0.0.0.0"
 SERVER_PORT = 1234
 
+
 class ClientThread(Thread):
-    def __init__(self,client_ip,client_port,conn):
+    def __init__(self, client_ip, client_port, conn):
         Thread.__init__(self)
         self.client_ip = client_ip
         self.client_port = client_port
@@ -21,11 +22,11 @@ class ClientThread(Thread):
                 print(f"Server received data: {data.decode()} from {self.client_ip}, {self.client_port}")
                 if data.decode() == "exit":
                     print("process killed")
-                    if listOfConnect != []:
+                    if listOfConnect:
                         for c in listOfConnect:
                             if self.conn != c:
                                 c.close()
-                    if listOfThreads != []:
+                    if listOfThreads:
                         for t in listOfThreads:
                             if t.ident != self.ident:
                                 t.join()
@@ -36,6 +37,8 @@ class ClientThread(Thread):
             except:
                 print("errore: Uscita dal programma")
                 break
+
+
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
 s.bind((SERVER_IP, SERVER_PORT))
@@ -45,8 +48,8 @@ listOfConnect = []
 print("Multithreaded Python server: Waiting for connection from TCP client")
 
 while True:
-    (conn, (ip,port)) = s.accept()
-    newthread = ClientThread(ip,port,conn)
+    (conn, (ip, port)) = s.accept()
+    newthread = ClientThread(ip, port, conn)
     newthread.start()
     listOfConnect.append(conn)
     listOfThreads.append(newthread)
