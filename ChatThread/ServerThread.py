@@ -1,5 +1,6 @@
-import socket
+import socket as skt
 from threading import Thread
+import sqlite3
 
 BUFFSIZE = 4096
 SERVER_IP = "0.0.0.0"
@@ -16,40 +17,43 @@ class ClientThread(Thread):
 
     def run(self):
         while True:
-            try:
+            #try:
                 data = self.conn.recv(BUFFSIZE)
+                dataSplit = (data.decode()).split('§')
 
-                print(f"Server received data: {data.decode()} from {self.client_ip}, {self.client_port}")
-                if data.decode() == "exit":
-                    print("process killed")
-                    if listOfConnect:
-                        for c in listOfConnect:
-                            if self.conn != c:
-                                c.close()
-                    if listOfThreads:
-                        for t in listOfThreads:
-                            if t.ident != self.ident:
-                                t.join()
-                    self.conn.close()
+                destinatario = dataSplit[0]
+                mittente = dataSplit[1]
+                testo = dataSplit[2]
+
+                db = sqlite3.connect('prova.db')
+                c = db.cursor()
+
+                for row in c.execute(f'SELECT * FROM CLIENT WHERE nick_name = "{destinatario}"'):
+                    (id, nick_name, dbip, dbport) = row
+
+                connDestinatario = DcOfConnect[dbip]
+
+                if testo == 'exit':
+                    connDestinatario.send((destinatario + "§" + mittente + "§" + "exit").encode())
                     break
                 else:
-                    self.conn.send("RECEIVED".encode())
-            except:
-                print("errore: Uscita dal programma")
-                break
+                    connDestinatario.send((destinatario + "§" + mittente + "§" + testo).encode())
+
+            #except:
+            #    print("errore: Uscita dal programma")
+            #    break
 
 
-s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+s = skt.socket(skt.AF_INET, skt.SOCK_STREAM)
+s.setsockopt(skt.SOL_SOCKET, skt.SO_REUSEADDR, 1)
 s.bind((SERVER_IP, SERVER_PORT))
 s.listen(5)
 listOfThreads = []
-listOfConnect = []
-print("Multithreaded Python server: Waiting for connection from TCP client")
+DcOfConnect = {}
 
 while True:
     (conn, (ip, port)) = s.accept()
     newthread = ClientThread(ip, port, conn)
     newthread.start()
-    listOfConnect.append(conn)
+    DcOfConnect[ip] = conn
     listOfThreads.append(newthread)
