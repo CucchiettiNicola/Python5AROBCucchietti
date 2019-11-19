@@ -33,17 +33,52 @@ chiaveN = []
 for l in chiaveL.upper():
     chiaveN.append(alfabetoLN[l])
 
-print(alfabetoLN)
-print(alfabetoNL)
+print(chiaveL + "\n" + str(chiaveN))
+while True:
+    codificaDecodifica = input("0: Codifica\n1: Decodifica\n>>>")
+    if codificaDecodifica == "0":
+        parolaL = chiaveL + " "
+        while len(chiaveL) <= len(parolaL):
+            parolaL = input("\nparola da crittografare\n>>>")
+            if len(chiaveL) <= len(parolaL):
+                print("\nerrore: parola più lunga della chiave\n")
+        parolaN = []
 
-print(chiaveN)
+        for l in parolaL.upper():
+            parolaN.append(alfabetoLN[l])
 
-parolaL = input("parola da crittografare\n>>>")
-parolaN = []
+        parolaCritN = []
 
-for l in parolaL.upper():
-    parolaN.append(alfabetoLN[l])
+        for k in range(0, len(parolaN)):
+            parolaCritN.append((parolaN[k] + chiaveN[k]) % 21)
 
-print(parolaN)
-cnt = 0
-#for nL in parolaN:
+        parolaCritL = ""
+
+        for n in parolaCritN:
+            parolaCritL = parolaCritL + alfabetoNL[n]
+
+        print(parolaCritL)
+
+    else:
+
+        parolaCritL = chiaveL + " "
+        while len(chiaveL) <= len(parolaCritL):
+            parolaCritL = input("\nparola da Decrittografare\n>>>")
+            if len(chiaveL) <= len(parolaCritL):
+                print("\nerrore: parola più lunga della chiave\n")
+        parolaCritN = []
+
+        for l in parolaCritL.upper():
+            parolaCritN.append(alfabetoLN[l])
+
+        parolaN = []
+
+        for k in range(0, len(parolaCritN)):
+            parolaN.append((parolaCritN[k] - chiaveN[k]) % 21)
+
+        parolaL = ""
+
+        for n in parolaN:
+            parolaL = parolaL + alfabetoNL[n]
+
+        print(parolaL)

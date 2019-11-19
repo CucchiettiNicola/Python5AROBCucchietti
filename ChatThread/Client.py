@@ -1,37 +1,45 @@
 import socket as sck
+from threading import Thread
 
-NickName = "Nicola"
+NickName = "Cucchietti"
 
 s = sck.socket(sck.AF_INET, sck.SOCK_STREAM)
-s.connect(('192.168.10.72', 1234))
+s.connect(('192.168.0.102', 2500))
 print("connesso")
 
-mod = int(input("1 per inviare prima\n2 per ricevere prima\n>>>"))
+class Receive(Thread):
+    def __init__(self, s):
+        Thread.__init__(self)
+        self.s = s
+        print(f"Ricevo")
 
-while True:
-    if mod == 1:
-        destinatario = input("destinatario\n>>>")
-        stringaDaInviare = input("messaggio\n>>>")
-        s.sendall((destinatario + "§" + NickName + "§" + stringaDaInviare).encode())
-        if stringaDaInviare == "exit":
-            break
-        else:
-            data = s.recv(4096)
+    def run(self):
+        print("partito receive")
+        while True:
+            data = self.s.recv(4096)
             dataSplit = (data.decode()).split('§')
-            print(dataSplit[1] + ": " + dataSplit[2])
+            print("\n" + dataSplit[1] + ": " + dataSplit[2])
             if dataSplit[2] == "exit":
                 break
-    else:
-        data = s.recv(4096)
-        dataSplit = (data.decode()).split('§')
-        print(dataSplit[1] + ": " + dataSplit[2])
-        if dataSplit[2] == "exit":
-            break
-        else:
-            destinatario = input("destinatario\n>>>")
-            stringaDaInviare = input("messaggio\n>>>")
+        self.s.close()
+
+class Send(Thread):
+    def __init__(self, s):
+        Thread.__init__(self)
+        self.s = s
+        print(f"Mando")
+
+    def run(self):
+        print("partito send")
+        while True:
+            destinatario = input("destinatario\n>>>\n")
+            stringaDaInviare = input("messaggio\n>>>\n")
             s.sendall((destinatario + "§" + NickName + "§" + stringaDaInviare).encode())
             if stringaDaInviare == "exit":
                 break
+        self.s.close()
 
-s.close()
+receive = Receive(s)
+send = Send(s)
+receive.start()
+send.start()

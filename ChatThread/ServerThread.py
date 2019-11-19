@@ -4,7 +4,7 @@ import sqlite3
 
 BUFFSIZE = 4096
 SERVER_IP = "0.0.0.0"
-SERVER_PORT = 1234
+SERVER_PORT = 2500
 
 
 class ClientThread(Thread):
@@ -17,8 +17,9 @@ class ClientThread(Thread):
 
     def run(self):
         while True:
-            #try:
+            try:
                 data = self.conn.recv(BUFFSIZE)
+                print(data.decode())
                 dataSplit = (data.decode()).split('§')
 
                 destinatario = dataSplit[0]
@@ -27,27 +28,24 @@ class ClientThread(Thread):
 
                 db = sqlite3.connect('prova.db')
                 c = db.cursor()
-
+                cont = 0
                 for row in c.execute(f'SELECT * FROM CLIENT WHERE nick_name = "{destinatario}"'):
                     (id, nick_name, dbip, dbport) = row
-
-                connDestinatario = DcOfConnect[dbip]
-
-                if testo == 'exit':
-                    connDestinatario.send((destinatario + "§" + mittente + "§" + "exit").encode())
-                    break
-                else:
+                    cont = cont + 1
+                if cont != 0:
+                    connDestinatario = DcOfConnect[dbip]
                     connDestinatario.send((destinatario + "§" + mittente + "§" + testo).encode())
-
-            #except:
-            #    print("errore: Uscita dal programma")
-            #    break
+                else:
+                    self.conn.send((destinatario + "§" + mittente + "§" + "destinatario non esistente").encode())
+            except:
+                print("client: (" + str(self.client_ip) + ", " + str(self.client_port) + ") " + "Errore: Uscita dal programma")
+                break
 
 
 s = skt.socket(skt.AF_INET, skt.SOCK_STREAM)
 s.setsockopt(skt.SOL_SOCKET, skt.SO_REUSEADDR, 1)
 s.bind((SERVER_IP, SERVER_PORT))
-s.listen(5)
+s.listen(50)
 listOfThreads = []
 DcOfConnect = {}
 
