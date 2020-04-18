@@ -11,6 +11,10 @@ def home():
 
 @app.route('/api/v1/resources/books/all', methods=['GET'])
 def api_all():
+
+    sqliteConnection = sqlite3.connect('dbBooks.db')
+    cursor = sqliteConnection.cursor()
+    
     return jsonify(cursor.execute(f"""
     SELECT * 
     FROM Books;
@@ -18,6 +22,10 @@ def api_all():
 
 @app.route('/api/v1/resources/books', methods=['GET'])
 def api_id():
+
+    sqliteConnection = sqlite3.connect('dbBooks.db')
+    cursor = sqliteConnection.cursor()
+    
     if 'id' in request.args:
         id = int(request.args['id'])
     else:
@@ -33,6 +41,10 @@ def api_id():
 
 @app.route('/api/v1/resources/books', methods=['GET'])
 def api_title():
+
+    sqliteConnection = sqlite3.connect('dbBooks.db')
+    cursor = sqliteConnection.cursor()
+    
     if 'title' in request.args:
         title = request.args
     else:
@@ -47,7 +59,7 @@ def api_title():
     """))
     return jsonify(results)
 
+@app.route('/api/v1/resouces/interrogazione', methods=['GET'])
+
 if __name__== "__main__":
-    sqliteConnection = sqlite3.connect('dbBooks.db')
-    cursor = sqliteConnection.cursor()
     app.run()
