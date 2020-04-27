@@ -59,7 +59,26 @@ def api_title():
     """))
     return jsonify(results)
 
-@app.route('/api/v1/resouces/interrogazione', methods=['GET'])
+@app.route('/api/v1/resouces/books/add', methods=['GET'])
+def api_add():
+    sqliteConnection = sqlite3.connect('dbBooks.db')
+    cursor = sqliteConnection.cursor()
+    
+    if 'id' in request.args and 'title' in request.args and 'autor' in request.args and 'published' in request.args:
+        id = int(request.args['id'])
+        title = request.args['title']
+        autor = request.args['autor']
+        try:
+            published = bool(request.args['published'])
+        except:
+            return "Error: published not boolean"
+        cursor.execute(f"""
+            INSERT INTO libri
+            VALUES ({id},{title},{autor},{published});
+        """)
+    else:
+        return "Error: No title field provided. Please specify a title, id, autor and published."
+    
 
 if __name__== "__main__":
     app.run()
